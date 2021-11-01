@@ -7,9 +7,7 @@ output:
     keep_md: true
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 # Introduction
 
@@ -32,7 +30,8 @@ The variables included in this dataset are:
 The dataset is stored in a comma-separated-value (CSV) file and there are a total of 17,568 observations in this dataset.
 
 
-```{r download}
+
+```r
   fileUrl <- 
     "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
   fileName <- "./activity.zip"
@@ -98,7 +97,8 @@ Show any code that is needed to
 
 Process/transform the data (if necessary) into a format suitable for your analysis
 
-```{r load}
+
+```r
   activity <- read.csv(file)
   activity$date <- as.Date(activity$date)
 ```
@@ -113,7 +113,8 @@ If you do not understand the difference between a histogram and a barplot, resea
 
 Calculate and report the mean and median of the total number of steps taken per day
 
-```{r steps_histogram}
+
+```r
   suppressPackageStartupMessages(library(dplyr))
   steps <- activity %>%
     group_by(date) %>%
@@ -129,7 +130,9 @@ Calculate and report the mean and median of the total number of steps taken per 
     scale_color_manual(name = "statistics", values = c(median = "blue", mean = "red"))
 ```
 
-**Mean of steps taken per day is `r as.integer(mean)` and Median is `r median`**
+![](PA1_template_files/figure-html/steps_histogram-1.png)<!-- -->
+
+**Mean of steps taken per day is 9354 and Median is 10395**
 
 ## What is the average daily activity pattern?
 
@@ -137,7 +140,8 @@ Make a time series plot (i.e. *type = "l"*) of the 5-minute interval (x-axis) an
 
 Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r daily_activity}
+
+```r
   steps2 <- activity %>%
     group_by(interval) %>%
     summarise(average=mean(steps,na.rm=TRUE))
@@ -147,7 +151,9 @@ Which 5-minute interval, on average across all the days in the dataset, contains
   ggplot(steps2,aes(interval,average)) + geom_line()
 ```
 
-**The maximum number of steps in average is in interval `r max_interval`**
+![](PA1_template_files/figure-html/daily_activity-1.png)<!-- -->
+
+**The maximum number of steps in average is in interval 835**
 
 ## Imputing missing values
 
@@ -161,8 +167,8 @@ Create a new dataset that is equal to the original dataset but with the missing 
 
 Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r imputing_missing_values}
 
+```r
   # join original file with the file containing the average per interval
   suppressMessages(activity3<-left_join(activity,steps2,x.by=interval,y.by=interval))
 
@@ -183,7 +189,9 @@ Make a histogram of the total number of steps taken each day and Calculate and r
     scale_color_manual(name = "statistics", values = c(median = "blue", mean = "red"))
 ```
 
-**New Mean of steps taken per day is `r as.integer(mean3)` and New Median is `r as.integer(median3)`**
+![](PA1_template_files/figure-html/imputing_missing_values-1.png)<!-- -->
+
+**New Mean of steps taken per day is 10766 and New Median is 10766**
 
 **Now Mean and Median are higher than before, as NAs were replaced by steps not existing before (so, steps added)**
 
@@ -195,7 +203,8 @@ Create a new factor variable in the dataset with two levels – “weekday” an
 
 Make a panel plot containing a time series plot (i.e. *type = "l"*) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). See the README file in the GitHub repository to see an example of what this plot should look like using simulated data.
 
-```{r daily_activity_workdays}
+
+```r
   activity3$typeOfDay<-"weekday"
   activity3$typeOfDay[grepl("S(at|un)", weekdays(activity3$date))]<-"weekend"
 
@@ -206,5 +215,7 @@ Make a panel plot containing a time series plot (i.e. *type = "l"*) of the 5-min
   ggplot(steps4,aes(interval,average)) + geom_line() +
     facet_grid(.~typeOfDay)
 ```
+
+![](PA1_template_files/figure-html/daily_activity_workdays-1.png)<!-- -->
 
 **weekday activity starts early, has a peek around interval 800 and moderate activity during the day, weekend activity starts later, without the intitial peek, but higher activty during the day, additionally activity ends later**
